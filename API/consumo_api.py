@@ -1,9 +1,9 @@
+from pathlib import Path
 import pandas as pd
 import requests
 
 STATE = "PR"
 
-# Reestruturado com mapeamento explícito
 ID_STRUCTURE = {
     "Deslizamento de terra": {
         "Geral": 60001,
@@ -32,12 +32,17 @@ def main():
     for desastre, indicadores in ID_STRUCTURE.items():
         all_data = []
 
+        # 1. Cria o repositório/diretório para o desastre atual
+        output_dir = Path(f"API/output/{desastre}")
+        output_dir.mkdir(parents=True, exist_ok=True)
+
         for tipo_indicador, indicator_id in indicadores.items():
             url_series = links_df.loc[
                 links_df["id"] == indicator_id, "url_obtem_dados_indicador"
             ]
 
             if url_series.empty:
+                print(f"URL não encontrada para o ID {indicator_id}")
                 continue
 
             url = url_series.values[0]
@@ -47,21 +52,35 @@ def main():
                 response.raise_for_status()
                 data = response.json()
 
-                df = pd.DataFrame(data if isinstance(data, list) else [data])
-                df = df.sort_values(by="name")
-                file_name = f"API/output/{desastre}/{tipo_indicador}.csv"
+                raw_data = data if isinstance(data, list) else [data]
+
+                # Salva o CSV individual do indicador
+                df = pd.DataFrame(raw_data)
+                if "name" in df.columns:
+                    df = df.sort_values(by="name")
+
+                file_name = output_dir / f"{tipo_indicador}.csv"
                 df.to_csv(file_name, index=False)
                 print(f"Gerado: {file_name}")
 
-            except requests.RequestException as e:
-                print(f"Erro na requisição: {e}")
+                # 2. Adiciona os dados e a tag da dimensão para a consolidação final
+                for item in raw_data:
+                    item_copy = item.copy()
+                    item_copy["tipo_indicador"] = tipo_indicador
+                    all_data.append(item_copy)
 
-        # Salva todos os dados do desastre em um CSV
+            except requests.RequestException as e:
+                print(f"Erro na requisição para {tipo_indicador} ({url}): {e}")
+
+        # 3. Salva a consolidação com todos os dados do desastre
         if all_data:
-            df = pd.DataFrame(all_data)
-            df = df.sort_values(by="name")
-            df.to_csv(f"API/output/{desastre}/{desastre}.csv", index=False)
-            print(f"Arquivo 'API/output/{desastre}/{desastre}.csv' gerado com sucesso!")
+            df_consolidado = pd.DataFrame(all_data)
+            if "name" in df_consolidado.columns:
+                df_consolidado = df_consolidado.sort_values(by="name")
+
+            consolidado_file = output_dir / f"{desastre}.csv"
+            df_consolidado.to_csv(consolidado_file, index=False)
+            print(f"Arquivo consolidado gerado: {consolidado_file}\n")
 
 
 if __name__ == "__main__":
