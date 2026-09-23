@@ -2,23 +2,19 @@
 
 Projeto para automatizar a coleta e o consumo de dados da API do **AdaptaBrasil**, organizando os resultados em arquivos CSV por setor, indicador e tipo de desastre.
 
+O processo completo é executado automaticamente através do `main.py`.
+
 ## Fluxo do projeto
 
-O processamento é dividido em duas etapas:
+O `main.py` executa todo o processo:
 
-1. **`API/coleta_dados.py`**
+1. Lê a estrutura de indicadores do AdaptaBrasil.
+2. Filtra os indicadores relevantes.
+3. Consulta os endpoints da API.
+4. Processa os dados retornados.
+5. Salva os resultados organizados em `API/Data` e `API/output`.
 
-   * Lê a estrutura de indicadores do AdaptaBrasil.
-   * Filtra os indicadores relevantes.
-   * Gera os arquivos de apoio em `API/Data`.
-
-2. **`API/consumo_api.py`**
-
-   * Lê os indicadores filtrados.
-   * Consulta os endpoints da API.
-   * Salva os resultados em `API/output`, separados por categoria.
-
-Exemplos de categorias:
+Exemplos de categorias geradas:
 
 ```text
 API/output/
@@ -30,141 +26,131 @@ API/output/
 ## Estrutura
 
 ```text
-api fagner/
-├── AdaptaBrasilAPIAccess/
-│   ├── AdaptaBrasilAPIAccess.py
-│   ├── adaptaBrasilAPIEstrutura.csv
-│   └── requirements.txt
+Consumo-Api-AdaptaBrasil/
+├── AdaptaBrasilAPIAccess/          # Acesso à estrutura da API do AdaptaBrasil
+│   ├── AdaptaBrasilAPIAccess.py    # Script para obtenção da estrutura da API
+│   ├── adaptaBrasilAPIEstrutura.csv # Estrutura dos indicadores
+│   └── requirements.txt            # Dependências do módulo
 ├── API/
-│   ├── Data/
-│   ├── output/
-│   ├── coleta_dados.py
-│   └── consumo_api.py
-├── requirements.txt
-├── readme.md
-└── output.json
+│   ├── Data/                       # Dados e indicadores processados
+│   ├── output/                     # CSVs finais organizados por categoria
+│   ├── coleta_dados.py             # Filtragem e preparação dos indicadores
+│   └── consumo_api.py              # Consulta e processamento dos dados da API
+├── main.py                         # Executa todo o processo de coleta
+├── requirements.txt                # Dependências do projeto
+├── readme.md                       # Documentação e instruções de uso
+└── output.json                     # Dados de saída em formato JSON
 ```
 
 ## Pré-requisitos
 
 * Python 3.9+
+* `pip`
+* `virtualenv`
 * Git
-* Acesso à internet
 
 ## Instalação
 
-### 1. Clone o projeto `AdaptaBrasilAPIAccess`
+### 1. Clone o repositório
 
-Na raiz do projeto, clone o repositório oficial:
+clone o repositório necessário para obter a estrutura da API:
 
-```powershell
+```bash
 git clone https://github.com/AdaptaBrasil/AdaptaBrasilAPIAccess.git
 ```
 
-O diretório `AdaptaBrasilAPIAccess` deve ficar na raiz do projeto:
+Ao final, o diretório deve estar organizado desta forma:
 
 ```text
-api fagner/
+Consumo-Api-AdaptaBrasil/
 ├── AdaptaBrasilAPIAccess/
 └── API/
 ```
 
 ### 2. Crie o ambiente virtual
 
-No diretório raiz:
+Instale o `virtualenv`, caso ainda não esteja instalado:
 
-```powershell
-python -m venv .venv
+```bash
+pip install virtualenv
 ```
 
-Ative o ambiente no PowerShell:
+Crie o ambiente virtual na raiz do projeto:
 
-```powershell
-.\.venv\Scripts\Activate.ps1
+```bash
+virtualenv .venv
 ```
 
-Caso o PowerShell bloqueie a execução:
+### 3. Ative o ambiente virtual
 
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
+No Linux:
+
+```bash
+source .venv/bin/activate
 ```
 
-### 3. Instale as dependências
+Após a ativação, o terminal deverá indicar que o ambiente `.venv` está ativo.
 
-```powershell
+### 4. Instale as dependências
+
+Com o ambiente virtual ativado:
+
+```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-Caso necessário, as dependências principais são:
-
-```powershell
-pip install pandas requests
 ```
 
 ## Execução
 
-Os scripts devem ser executados nesta ordem.
+Com o ambiente virtual ativado, basta executar:
 
-### 1. Preparar os indicadores
-
-```powershell
-python .\API\coleta_dados.py
+```bash
+python main.py
 ```
 
-Esse comando gera os arquivos em:
+O `main.py` executará automaticamente todo o processo de coleta e processamento dos dados.
+
+Os arquivos gerados serão organizados principalmente em:
 
 ```text
 API/Data/
-├── adaptaBrasilAPIEstrutura.csv
-├── sectoral_risk.csv
-└── GeoHydrological_Disasters.csv
-```
-
-### 2. Consumir os dados da API
-
-```powershell
-python .\API\consumo_api.py
-```
-
-Os resultados serão salvos em:
-
-```text
 API/output/
-```
-
-## Execução rápida
-
-Depois de clonar o projeto e o `AdaptaBrasilAPIAccess`, basta:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python .\API\coleta_dados.py
-python .\API\consumo_api.py
 ```
 
 ## Problemas comuns
 
-**Erro ao ativar o ambiente virtual:**
+### `virtualenv: command not found`
 
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+Instale o `virtualenv`:
+
+```bash
+pip install virtualenv
 ```
 
-**`ModuleNotFoundError`:**
+### `ModuleNotFoundError`
 
-```powershell
+Verifique se o ambiente virtual está ativado e reinstale as dependências:
+
+```bash
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Arquivos não encontrados ou não gerados:**
+### Erro relacionado ao `AdaptaBrasilAPIAccess`
 
-Verifique se o `AdaptaBrasilAPIAccess` foi clonado na raiz do projeto e se os scripts foram executados na ordem:
+Verifique se o repositório foi clonado na raiz do projeto:
 
 ```text
-coleta_dados.py → consumo_api.py
+AdaptaBrasil-API---Coleta-e-Consumo-de-Dados/
+└── AdaptaBrasilAPIAccess/
 ```
+
+### Arquivos não foram gerados
+
+Verifique se o programa foi executado a partir da raiz do projeto:
+
+```bash
+python main.py
+```
+
+O `main.py` deve ser executado com o ambiente virtual ativado.
