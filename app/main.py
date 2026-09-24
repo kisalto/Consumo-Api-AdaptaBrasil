@@ -2,16 +2,16 @@ from pathlib import Path
 import subprocess
 import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 ADAPTA_DIR = PROJECT_ROOT / "AdaptaBrasilAPIAccess"
-API_DIR = PROJECT_ROOT / "API"
+API_DIR = PROJECT_ROOT / "app" / "scripts"
 
 
 def run_script(script_path: Path, *args: str) -> None:
     command = [sys.executable, str(script_path), *args]
     print(f"\n=== Executando: {' '.join(command)} ===")
 
-    result = subprocess.run(command, cwd=str(PROJECT_ROOT))
+    result = subprocess.run(command, cwd=str(PROJECT_ROOT), check=False)
     if result.returncode != 0:
         raise SystemExit(f"Falha ao executar {script_path.name} (código: {result.returncode})")
 

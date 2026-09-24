@@ -1,6 +1,6 @@
 AdaptaBrasilAPIAccess/
 .venv/
-API/output/*
-!API/output/.gitkeep
-API/Data/*
-!API/Data/.gitkeep
+output/*
+!output/.gitkeep
+input/*
+!input/.gitkeep

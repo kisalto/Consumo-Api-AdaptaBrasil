@@ -27,13 +27,13 @@ ID_STRUCTURE = {
 
 
 def main():
-    links_df = pd.read_csv("API/Data/adaptaBrasilAPIEstrutura.csv", sep="|")
+    links_df = pd.read_csv("./input/adaptaBrasilAPIEstrutura.csv", sep="|")
 
     for desastre, indicadores in ID_STRUCTURE.items():
         all_data = []
 
         # 1. Cria o repositório/diretório para o desastre atual
-        output_dir = Path(f"API/output/{desastre}")
+        output_dir = Path(f"./output/{desastre}")
         output_dir.mkdir(parents=True, exist_ok=True)
 
         for tipo_indicador, indicator_id in indicadores.items():
